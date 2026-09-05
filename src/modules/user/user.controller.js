@@ -22,21 +22,24 @@ userController.put("/:id", async (req, res) => {
   }
 });
 
-userController.get("/by-email", async (req, res) => {
+userController.delete("/:id", async (req, res) => {
   try {
-    const user = await userServices.findUserByEmailService(req.query.email);
-    return res.status(200).json(user);
+    const result = await userServices.deleteUserService(req.params.id);
+    return res.status(200).json(result);
   } catch (error) {
-    return res.status(404).json({ message: error.message || "User not found" });
+    const status = error.message === "User not found" ? 404 : 400;
+    return res.status(status).json({ message: error.message || "Delete failed" });
   }
 });
 
-userController.get("/:id", async (req, res) => {
+userController.get("/by-email", async (req, res) => {
   try {
-    const user = await userServices.getUserByIdService(req.params.id);
+    const email = req.query.email;
+    const user = await userServices.findUserByEmailService(email);
     return res.status(200).json(user);
   } catch (error) {
-    return res.status(404).json({ message: error.message || "User not found" });
+    const status = error.message === "Email is required" ? 400 : 404;
+    return res.status(status).json({ message: error.message || "User not found" });
   }
 });
 
@@ -49,4 +52,14 @@ userController.get("/all-users", async (req, res) => {
   }
 });
 
-export default userController
+userController.get("/:id", async (req, res) => {
+  try {
+    const user = await userServices.getUserByIdService(req.params.id);
+    return res.status(200).json(user);
+  } catch (error) {
+    return res.status(404).json({ message: error.message || "User not found" });
+  }
+});
+
+export default userController;
+

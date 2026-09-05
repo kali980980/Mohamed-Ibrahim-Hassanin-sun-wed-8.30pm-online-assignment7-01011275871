@@ -28,9 +28,23 @@ export const updateUserByPkService = async (id, data) => {
   return plainUser;
 };
 
+export const deleteUserService = async (id) => {
+  const user = await User.findByPk(id);
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  await user.destroy();
+  return { message: "User deleted" };
+};
+
 export const findUserByEmailService = async (email) => {
+  if (!email || !String(email).trim()) {
+    throw new Error("Email is required");
+  }
+
   const user = await User.findOne({
-    where: { email },
+    where: { email: String(email).trim() },
     attributes: { exclude: ["password"] },
   });
 
